@@ -11,6 +11,7 @@ from flask import abort
 import jwt
 import db_config
 
+
 app = Flask(__name__)
 ma = Marshmallow(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_config.DB_CONFIG
@@ -21,10 +22,14 @@ bcrypt = Bcrypt(app)
 from model.user import User, UserSchema
 from model.transaction import Transaction,TransactionSchema
 from model.UserTransaction import UserTransaction
+from model.Listing import Listing,ListingSchema
 
 transaction_schema = TransactionSchema()
 transactions_schema = TransactionSchema(many=True)
 user_schema = UserSchema()
+
+listing_schema = ListingSchema()
+listings_schema = ListingSchema(many= True)
 
 def extract_auth_token(authenticated_request):
  auth_header = authenticated_request.headers.get('Authorization')
@@ -209,7 +214,6 @@ def getCoordinates():
  return jsonify(coordinates_schema.dump(listOfCoordinates))
 
 
-
 @app.route('/userTransaction/<username>',methods = ['POST'])
 def add_user_transaction(username):
 
@@ -245,9 +249,87 @@ def add_user_transaction(username):
   except (jwt.ExpiredSignatureError,jwt.InvalidTokenError):
     abort(403, "Invalid Token")
 
-  
+
+@app.route('/listings',methods= ['GET'])
+def get_listings():
+  list_of_listings = Listing.query.filter().all()
+  return jsonify(listings_schema.dump(list_of_listings))
 
   
+@app.route('/listing',methods = ['POST'])
+def add_listing():
+  token = extract_auth_token(request)
+  if token is None:
+    abort(403)
+
+  try:
+    request_data = request.get_json()
+    usd_amount = request_data['usd_amount']
+    rate = request_data['rate']
+    usd_to_lbp = request_data['usd_to_lbp']
+
+    user_id = decode_token(token)
+
+    if usd_amount and rate and usd_to_lbp is not None:
+      new_listing = Listing(user_id = user_id,
+                            usd_amount = usd_amount,
+                            usd_to_lbp = usd_to_lbp,
+                            rate = rate)
+      db.session.add(new_listing)
+      db.session.commit()
+    
+    return jsonify(listing_schema.dump(new_listing))
+
+  except (TypeError,KeyError):
+    abort(400)
+
+  except (jwt.ExpiredSignatureError,jwt.InvalidTokenError):
+    abort(403, "Invalid Token")
+
+
+@app.route('/acceptListing', methods = ['POST'])
+def acceptListing():
+  token = extract_auth_token(request)
+  if token is None:
+    abort(403)
+
+  try:
+    request_data = request.get_json()
+    listing_id = request_data['listing_id']
+
+    user1_id = decode_token(token) 
+    listing = Listing.query.filter_by(listing_id = listing_id ).first()
+
+    usd_amount = listing.usd_amount
+    rate = listing.rate
+    usd_to_lbp = listing.usd_to_lbp
+    user2_id = listing.user_id
+    
+    new_transaction = Transaction(usd_amount = usd_amount, lbp_amount = usd_amount*rate, usd_to_lbp= usd_to_lbp,user_id=user1_id)
+    db.session.add(new_transaction)
+    db.session.commit()
+   
+
+    new_user_transaction = UserTransaction(user1_id = user1_id, user2_id=user2_id,transaction_id = new_transaction.id)
+
+    db.session.add(new_user_transaction)
+  
+    db.session.commit()
+
+    Listing.query.filter_by(listing_id = listing_id).delete()
+    db.session.commit()
+
+   
+
+    return jsonify(transaction_schema.dump(new_transaction))
+
+  except (TypeError,KeyError):
+    abort(400)
+
+  except (jwt.ExpiredSignatureError,jwt.InvalidTokenError):
+    abort(403, "Invalid Token")
+
  
   
 
+#TODO check graph + get all usernames + stats + an additional feature
