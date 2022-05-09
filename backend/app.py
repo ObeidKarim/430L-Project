@@ -1,7 +1,7 @@
 import datetime
 
 from flask import Flask
-from  flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from flask import request
 from flask import jsonify
 from flask_cors import CORS
@@ -9,7 +9,7 @@ from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask import abort
 import jwt
-from . import db_config
+import db_config
 
 app = Flask(__name__)
 ma = Marshmallow(app)
@@ -18,8 +18,9 @@ CORS(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
-from .model.user import User, UserSchema
-from .model.transaction import Transaction,TransactionSchema
+from model.user import User, UserSchema
+from model.transaction import Transaction,TransactionSchema
+from model.UserTransaction import UserTransaction
 
 transaction_schema = TransactionSchema()
 transactions_schema = TransactionSchema(many=True)
@@ -120,15 +121,19 @@ def getExchangeRate():
 
 @app.route('/user',methods = ['POST'])
 def addUser():
- request_data = request.get_json()
- user_name = request_data['user_name']
- password = request_data['password']
+  try:
+    request_data = request.get_json()
+    user_name = request_data['user_name']
+    password = request_data['password']
+  
+  except (KeyError,TypeError):
+    abort(400)
 
- new_user = User(user_name, password)
- db.session.add(new_user)
- db.session.commit()
+  new_user = User(user_name, password)
+  db.session.add(new_user)
+  db.session.commit()
 
- return jsonify(user_schema.dump(new_user))
+  return jsonify(user_schema.dump(new_user))
 
 
 SECRET_KEY = "b'|\xe7\xbfU3`\xc4\xec\xa7\xa9zf:}\xb5\xc7\xb9\x139^3@Dv'"
@@ -204,4 +209,45 @@ def getCoordinates():
  return jsonify(coordinates_schema.dump(listOfCoordinates))
 
 
+
+@app.route('/userTransaction/<username>',methods = ['POST'])
+def add_user_transaction(username):
+
+  token = extract_auth_token(request)
+  if token is None:
+    abort(403, 'Please Sign In')
+
+  try:
+    request_data = request.get_json()
+    usd_amount = request_data['usd_amount']
+    lbp_amount = request_data['lbp_amount']
+    usd_to_lbp = request_data['usd_to_lbp']
+
+    user1_id = decode_token(token)
+    user2_id = User.query.filter_by(user_name = username).first().id
+
+    if usd_amount and lbp_amount and usd_to_lbp is not None:
+      new_transaction = Transaction(usd_amount = usd_amount, lbp_amount = lbp_amount,usd_to_lbp= usd_to_lbp,user_id=user1_id)
+      db.session.add(new_transaction)
+      db.session.commit()
+
+      new_user_transaction = UserTransaction(user1_id = user1_id, user2_id=user2_id,transaction_id = new_transaction.id)
+
+      db.session.add(new_user_transaction)
+      db.session.commit()
+
+    return jsonify(transaction_schema.dump(new_transaction))
+
+
+  except (TypeError,KeyError):
+    abort(400)
+
+  except (jwt.ExpiredSignatureError,jwt.InvalidTokenError):
+    abort(403, "Invalid Token")
+
+  
+
+  
+ 
+  
 
