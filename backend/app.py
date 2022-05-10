@@ -5,11 +5,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import request
 from flask import jsonify
 from flask_cors import CORS
+from itsdangerous import json
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask import abort
 import jwt
 import db_config
+import statistics
 
 
 app = Flask(__name__)
@@ -332,4 +334,95 @@ def acceptListing():
  
   
 
-#TODO check graph + get all usernames + stats + an additional feature
+
+
+
+@app.route('/users', methods = ['GET'])
+def get_users():
+  token = extract_auth_token(request)
+  if token is None:
+    abort(403)
+
+  try:
+    user_id = decode_token(token)
+    users = User.query.filter(User.id != user_id).all()
+    usernames = []
+    for user in users:
+      usernames.append(user.user_name)
+
+    print(users)
+    return jsonify(usernames)
+
+
+  except:
+    abort(403)
+
+
+@app.route('/statistics', methods = ['GET'])
+def get_stats():
+  END_DATE = datetime.datetime.now()
+  START_DATE = END_DATE - datetime.timedelta(days = 3)
+  buyUsdTransactions = Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),
+                                                Transaction.usd_to_lbp == False
+                                                ).all()
+
+
+  sellUsdTransactions = Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),
+                                                Transaction.usd_to_lbp == True
+                                                ).all()
+
+  buy_rates = pushRates(buyUsdTransactions)
+  sell_rates = pushRates(sellUsdTransactions)
+
+  volume = 0
+  numberOfTransactions = len(buyUsdTransactions) + len(sellUsdTransactions)
+  for transaction in buyUsdTransactions:
+    volume += transaction.usd_amount
+  for transaction in sellUsdTransactions:
+    volume += transaction.usd_amount
+
+  stats = {}
+  stats["volume"] = volume
+  stats["numberOfTransactions"] = numberOfTransactions
+
+  if (len(buy_rates) > 0):
+    stats["max_usd_to_lbp"] = max(buy_rates)
+    stats["median_usd_to_lbp"] = statistics.median(buy_rates)
+    stats["stdev_usd_to_lbp"] = statistics.stdev(buy_rates)
+    stats["mode_usd_to_lbp"] = statistics.mode(buy_rates)
+    stats["variance_usd_to_lbp"] = statistics.variance(buy_rates)
+
+  else:
+    stats["max_usd_to_lbp"] = -1
+    stats["median_usd_to_lbp"] = -1
+    stats["stdev_usd_to_lbp"] = -1
+    stats["mode_usd_to_lbp"] = -1
+    stats["variance_usd_to_lbp"] = -1
+
+  if (len(sell_rates) > 0):
+    stats["max_lbp_to_usd"] = max(sell_rates)
+    stats["median_lbp_to_usd"] = statistics.median(sell_rates)
+    stats["stdev_lbp_to_usd"] = statistics.stdev(sell_rates)
+    stats["mode_lbp_to_usd"] = statistics.mode(sell_rates)
+    stats["variance_lbp_to_usd"] = statistics.variance(sell_rates)
+
+  else:
+    stats["max_lbp_to_usd"] = -1
+    stats["median_lbp_to_usd"] = -1
+    stats["stdev_lbp_to_usd"] = -1
+    stats["mode_lbp_to_usd"] = -1
+    stats["variance_lbp_to_usd"] = -1
+
+  return jsonify(stats)
+
+
+
+
+
+
+
+
+
+
+                                   
+
