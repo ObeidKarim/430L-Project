@@ -48,6 +48,36 @@ def decode_token(token):
 
 @app.route('/transaction',methods=['POST'])
 def transact():
+ """ Registers a transaction of a specific user (if logged in, else anonymous)
+    ---
+     parameters:
+      - name: token
+        in: header
+        type : string
+        required: true
+        description : The token returned by the backend whenever a certain user signs in.
+      - name: usd_amount
+        in: body
+        type : number
+        example: 8
+        required: true
+      - name: lbp_amount
+        in: body
+        type : number
+        example: 100000
+        required: true
+      - name : usd_to_lbp
+        in : body
+        type : boolean
+        example : 1
+        required : true
+        description : True if the transaction is USD to LBP. False otherwise.   
+     responses:
+       200:
+         description: The transaction added as a json.
+       400:
+         description : The input is invalid.
+    """ 
 
  try:
   request_data = request.get_json()
@@ -73,6 +103,20 @@ def transact():
 
 @app.route('/transaction',methods=['GET'])
 def get_transations():
+ """ Returns transactions of specific user
+    ---
+     parameters:
+      - name: token
+        in: header
+        type : string
+        required: true
+        description : The token returned by the backend whenever a certain user signs in.
+    responses:
+      200:
+        description: returns list of transactions of user
+      403:
+        description : Invalid Token
+    """ 
  token = extract_auth_token(request)
  if token is None:
   abort(403,'Must include authorization token')
@@ -96,7 +140,12 @@ def pushRates(TransactionsList):
 
 @app.route('/exchangeRate',methods = ['GET'])
 def getExchangeRate():
-
+ """ Returns the exchange rates during a last 3 days. 
+    ---
+    responses:
+      200:
+        description: The exchange rate during the last 3 days. Returns both usd_to_lbp and lbp_to_usd rates.
+    """ 
  END_DATE = datetime.datetime.now()
  START_DATE = END_DATE - datetime.timedelta(days = 3)
 
@@ -128,6 +177,26 @@ def getExchangeRate():
 
 @app.route('/user',methods = ['POST'])
 def addUser():
+  """ Creates/Signs up a User
+    ---
+    parameters:
+      - name: user_name
+        in: body
+        type : string
+        example: KarimBH
+        required: true
+      - name: password
+        in: body
+        type : string
+        example: mepass
+        required: true
+    responses:
+      200:
+        description: The user_name and the user's id as a json
+      400:
+        description : The input is invalid. Make sure you have passed user_name and password.
+    """ 
+
   try:
     request_data = request.get_json()
     user_name = request_data['user_name']
@@ -158,6 +227,27 @@ def create_token(user_id):
 
 @app.route('/authentication',methods = ['POST'])
 def authenticate():
+ """ Authenticates user's credentials. Used when a user wants to sign in.
+    ---
+    parameters:
+      - name: user_name
+        in: body
+        type : string
+        example: KarimBH
+        required: true
+      - name: password
+        in: body
+        type : string
+        example: mepass
+        required: true
+    responses:
+      200:
+        description: A token, to be used later by the user.
+      400:
+        description : The input is invalid. Make sure you have passed the correct user_name and password.
+      403:
+        description : Wrong credentials.
+    """ 
  try:
      request_data = request.get_json()
      user_name = request_data['user_name']
@@ -207,6 +297,9 @@ def getCoordinatesFromTransaction(trans):
 
 @app.route('/graph', methods = ['GET'])
 def getCoordinates():
+ """
+ Gets the coordinates of the points to graph
+ """ 
 
  buyUsdTransactions = Transaction.query.filter(Transaction.usd_to_lbp == False).all()
  listOfCoordinates = []
@@ -218,7 +311,42 @@ def getCoordinates():
 
 @app.route('/userTransaction/<username>',methods = ['POST'])
 def add_user_transaction(username):
-
+  """ Registers a transaction of the logged in user and associates it with another user
+    ---
+     parameters:
+      - name: token
+        in: header
+        type : string
+        required: true
+        description : The token returned by the backend whenever a certain user signs in.
+      - name: usd_amount
+        in: body
+        type : number
+        example: 8
+        required: true
+      - name: lbp_amount
+        in: body
+        type : number
+        example: 100000
+        required: true
+      - name : usd_to_lbp
+        in : body
+        type : boolean
+        example : 1
+        required : true
+        description : True if the transaction is USD to LBP. False otherwise.
+      - name : user2_id
+        in : body
+        type : string
+        example : KarimObeid
+        required : true
+        description : The associated user in the transaction     
+     responses:
+       200:
+         description: The transaction added as a json.
+       400:
+         description : The input is invalid.
+    """
   token = extract_auth_token(request)
   if token is None:
     abort(403, 'Please Sign In')
@@ -254,12 +382,16 @@ def add_user_transaction(username):
 
 @app.route('/listings',methods= ['GET'])
 def get_listings():
+  """Returns a list of trades available, showing the user (username), the USD amount, the rate, Sell or Buy, and an action button "Accept Listing" that the logged-in user can click to accept the transaction
+  """
   list_of_listings = Listing.query.filter().all()
   return jsonify(listings_schema.dump(list_of_listings))
 
   
 @app.route('/listing',methods = ['POST'])
 def add_listing():
+  """Adds a trade to the list of trades 
+  """
   token = extract_auth_token(request)
   if token is None:
     abort(403)
@@ -291,6 +423,8 @@ def add_listing():
 
 @app.route('/acceptListing', methods = ['POST'])
 def acceptListing():
+  """Accepts a trade in the trade list, and creates a new user transaction.
+  """
   token = extract_auth_token(request)
   if token is None:
     abort(403)
@@ -339,6 +473,20 @@ def acceptListing():
 
 @app.route('/users', methods = ['GET'])
 def get_users():
+  """ Returns all users registered
+    ---
+    parameters:
+      - name: token
+        in: header
+        type : string
+        required: true
+        description : The token returned by the backend whenever a certain user signs in.
+    responses:
+      200:
+        description: A json of all users registered
+      403:
+        description: Invalid Token
+    """ 
   token = extract_auth_token(request)
   if token is None:
     abort(403)
@@ -360,6 +508,8 @@ def get_users():
 
 @app.route('/statistics', methods = ['GET'])
 def get_stats():
+  """Returns the volume, number (count), max, median, stdev, mode and variance of transactions,
+  """
   END_DATE = datetime.datetime.now()
   START_DATE = END_DATE - datetime.timedelta(days = 3)
   buyUsdTransactions = Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),
