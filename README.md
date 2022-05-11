@@ -7,7 +7,7 @@ Follow the steps below to setup your backend:
     2. Open Command Prompt and change the path to the new folder created.
     3. Using the Command Prompt, write : git clone https://github.com/ObeidKarim/430L-Project
 2. Make sure you have Flask installed. Check this link to know more : https://phoenixnap.com/kb/install-flask
-3. By now, you'll find the folder cloned into your new folder. Using Command Prompt, write cd/exchange-rate/backend
+3. By now, you'll find the folder cloned into your new folder. Using Command Prompt, write cd/430L-Project/backend
 4. To install the dependencies needed to run the application, run "pip install -r requirements.txt" using Command Prompt. Note that this step is done only once
 5. To run the flask application, write:
     1. set FLASK_APP=server.py
