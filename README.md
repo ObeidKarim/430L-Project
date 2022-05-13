@@ -31,6 +31,19 @@ The database has 3 models:
         * transaction_id : Primary Key and Foreign Key to Transaction(id)
         * user1_id : Foreign Key to User(id)
         * user2_id : Foreign Key to User(id)
+ 
+## Documentation using Swagger
+For API documentation, Swagger UI was used. Swagger UI allows anyone — be it your development team or your end consumers — to visualize and interact with the API’s resources without having any of the implementation logic in place. It’s automatically generated from your OpenAPI (formerly known as Swagger) Specification, with the visual documentation making it easy for back end implementation and client side consumption.
+
+To check the documentation :
+
+Make sure you have flasgger installed. If not, just write "pip install flasgger" using CP.
+Run your flask application as mentioned in the Setup section above.
+Using any browser, go to http://localhost:5000/apidocs/
+
+Documentation screenshot:
+
+![documentation](https://user-images.githubusercontent.com/98960824/168291963-44850fba-50a2-4e9d-9393-53c040021aec.PNG)
 
 # Mobile App
 ## Setup
