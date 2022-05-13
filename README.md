@@ -64,3 +64,21 @@ Registration and login pages for registering and authentication users.
 Listing Trades of other users, and can accept a trade with another user.
 ### History
 Displays all transactions of the logged-in user
+
+
+# Frontend
+## Features
+### User authentication
+Registration and login pages for registering and authentication users.
+### Exchange Page
+* Check current exchange rates (Buy and Sell Usd Rates)
+* Add transactions
+* Calculator that calculates the buy and sell amount of a secif lbp or usd input
+### Statistics Page
+* Displays various statistics (number of transactions, volume, median...)
+### Transactions Page
+Listing Trades of other users, and can accept a trade with another user.
+### History
+Displays all transactions of the logged-in user
+### Fluctuation Graph
+Displays the fluctuation of the LBP/USD rate over time depending on the transactions done by all users.
