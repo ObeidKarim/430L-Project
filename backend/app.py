@@ -2,7 +2,7 @@ import datetime
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask import request
+from flask import request, Blueprint
 from flask import jsonify
 from flask_cors import CORS
 from itsdangerous import json
@@ -12,6 +12,7 @@ from flask import abort
 import jwt
 import db_config
 import statistics
+from flasgger import Swagger
 
 
 app = Flask(__name__)
@@ -20,6 +21,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = db_config.DB_CONFIG
 CORS(app)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+swagger = Swagger(app)
+app_blue = Blueprint('app', __name__, url_prefix='/app')
+
+
+app.register_blueprint(app_blue)
 
 from model.user import User, UserSchema
 from model.transaction import Transaction,TransactionSchema
@@ -48,7 +54,7 @@ def decode_token(token):
 
 @app.route('/transaction',methods=['POST'])
 def transact():
- """ Registers a transaction of a specific user (if logged in, else anonymous)
+ """ Registers a new transaction (user specific transaction if user is logged in, else registers transaction anonymously).
     ---
      parameters:
       - name: token
@@ -103,7 +109,7 @@ def transact():
 
 @app.route('/transaction',methods=['GET'])
 def get_transations():
- """ Returns transactions of specific user
+ """ Returns all transactions of logged in user.
     ---
      parameters:
       - name: token
@@ -111,11 +117,11 @@ def get_transations():
         type : string
         required: true
         description : The token returned by the backend whenever a certain user signs in.
-    responses:
-      200:
-        description: returns list of transactions of user
-      403:
-        description : Invalid Token
+     responses:
+       200:
+         description: returns list of transactions of user
+       403:
+         description : Invalid Token
     """ 
  token = extract_auth_token(request)
  if token is None:
@@ -177,7 +183,7 @@ def getExchangeRate():
 
 @app.route('/user',methods = ['POST'])
 def addUser():
-  """ Creates/Signs up a User
+  """ Creates and Signs up a new User.
     ---
     parameters:
       - name: user_name
@@ -227,7 +233,7 @@ def create_token(user_id):
 
 @app.route('/authentication',methods = ['POST'])
 def authenticate():
- """ Authenticates user's credentials. Used when a user wants to sign in.
+ """ Authenticates user's credentials. Used when a user wants to log in.
     ---
     parameters:
       - name: user_name
@@ -272,10 +278,6 @@ def authenticate():
  return jsonify(token=token)
 
 
-#volume over 3 days
-#highest transaction
-#number of transactions
-
 
 class CoordinateSchema(ma.Schema):
  class Meta:
@@ -297,8 +299,11 @@ def getCoordinatesFromTransaction(trans):
 
 @app.route('/graph', methods = ['GET'])
 def getCoordinates():
- """
- Gets the coordinates of the points to graph
+ """Returns a of coordinates of the points to graph.
+ ---
+      responses:
+        200:
+          description: return list of coordinates.
  """ 
 
  buyUsdTransactions = Transaction.query.filter(Transaction.usd_to_lbp == False).all()
@@ -311,7 +316,7 @@ def getCoordinates():
 
 @app.route('/userTransaction/<username>',methods = ['POST'])
 def add_user_transaction(username):
-  """ Registers a transaction of the logged in user and associates it with another user
+  """ Registers a new transaction of the logged in user and associates it with another user.
     ---
      parameters:
       - name: token
@@ -382,7 +387,11 @@ def add_user_transaction(username):
 
 @app.route('/listings',methods= ['GET'])
 def get_listings():
-  """Returns a list of trades available, showing the user (username), the USD amount, the rate, Sell or Buy, and an action button "Accept Listing" that the logged-in user can click to accept the transaction
+  """Returns a list of all listings available.
+    ---
+        responses:
+          200:
+            description: return a list of listings.
   """
   list_of_listings = Listing.query.filter().all()
   return jsonify(listings_schema.dump(list_of_listings))
@@ -390,7 +399,45 @@ def get_listings():
   
 @app.route('/listing',methods = ['POST'])
 def add_listing():
-  """Adds a trade to the list of trades 
+  """Adds a listing to the list of listings 
+    ---
+    parameters:
+      - name: token
+        in: header
+        type : string
+        required: true
+        description : The token returned by the backend whenever a certain user signs in.
+      - name: usd_amount
+        in: body
+        type : number
+        example: 8
+        required: true
+      - name : usd_to_lbp
+        in : body
+        type : boolean
+        example : 1
+        required : true
+        description : True if the transaction is USD to LBP. False otherwise.
+      - name : rate
+        in : body
+        type : number
+        example : 4000
+        required : true
+        description : rate of usd to lbp wanted by user.
+      - name : user_id
+        in : body
+        type : string
+        example : KarimObeid
+        required : true
+        description : The logged in user creating the transaction listing
+    responses:
+      200:
+        description: Listing added
+      400:
+        description: Invalid input
+      403:
+        description: Invalid token
+  
   """
   token = extract_auth_token(request)
   if token is None:
@@ -423,7 +470,13 @@ def add_listing():
 
 @app.route('/acceptListing', methods = ['POST'])
 def acceptListing():
-  """Accepts a trade in the trade list, and creates a new user transaction.
+  """Accepts a listing from the list of listings, and creates a new user transaction.
+    ---
+        responses:
+          200:
+            description: registers the new transaction accepted.
+
+
   """
   token = extract_auth_token(request)
   if token is None:
@@ -465,15 +518,11 @@ def acceptListing():
   except (jwt.ExpiredSignatureError,jwt.InvalidTokenError):
     abort(403, "Invalid Token")
 
- 
-  
-
-
 
 
 @app.route('/users', methods = ['GET'])
 def get_users():
-  """ Returns all users registered
+  """ Returns a list of all registered users.
     ---
     parameters:
       - name: token
@@ -508,7 +557,13 @@ def get_users():
 
 @app.route('/statistics', methods = ['GET'])
 def get_stats():
-  """Returns the volume, number (count), max, median, stdev, mode and variance of transactions,
+  """Returns the volume, number (count), max, median, stdev, mode and variance of transactions.
+    ---
+      responses:
+        200:
+          description: A json of all stats
+  
+  
   """
   END_DATE = datetime.datetime.now()
   START_DATE = END_DATE - datetime.timedelta(days = 3)
