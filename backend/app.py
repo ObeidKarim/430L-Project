@@ -620,7 +620,24 @@ def get_stats():
 
   return jsonify(stats)
 
+@app.route('/transactionall', methods=['GET'])
+def allTransactions():
+    """ Returns all transactions of all users.
+           ---
+            response:
+              200:
+                description: returns list of transactions done by all users
 
+           """
+    L = list()
+    p = Transaction.query.all()
+    for i in p:
+        t = Transaction(i.usd_amount, i.lbp_amount, i.usd_to_lbp, i.user_id)
+        t.added_date = i.added_date
+        t.id = i.id
+        L.append(t)
+
+    return jsonify(transactions_schema.dump(L))
 
 
 
