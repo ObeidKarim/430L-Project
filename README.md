@@ -37,9 +37,9 @@ For API documentation, Swagger UI was used. Swagger UI allows anyone — be it y
 
 To check the documentation :
 
-Make sure you have flasgger installed. If not, just write "pip install flasgger" using CP.
-Run your flask application as mentioned in the Setup section above.
-Using any browser, go to http://localhost:5000/apidocs/
+1. Make sure you have flasgger installed. If not, just write "pip install flasgger" using CP.
+2. Run your flask application as mentioned in the Setup section above.
+3. Using any browser, go to http://localhost:5000/apidocs/
 
 Documentation screenshot:
 
