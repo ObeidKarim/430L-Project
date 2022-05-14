@@ -1,4 +1,11 @@
-# Backend
+#Curreny Exchange Rate 
+Project for EECE430L developed for Web and Android. Developed by:
+
+Karim Bou Hamdan (backend + mobile)
+Fatima Chehab (web frontend)
+Karim Obeid (backend + mobile)
+
+#Backend
 
 ## Setup
 Follow the steps below to setup your backend:
