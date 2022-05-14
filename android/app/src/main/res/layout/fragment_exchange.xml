@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.ExchangeFragment">
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textStyle="bold"
+        android:text="LBP Exchange Rate"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/vwBuyUsd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintRight_toLeftOf="@id/vwSellUsd"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textStyle="bold"
+            android:text="Buy USD:"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/txtBuyUsdRate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textStyle="bold"
+            android:text="Not available yet"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/vwSellUsd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintLeft_toRightOf="@id/vwBuyUsd"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textStyle="bold"
+            android:text="Sell USD:"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/txtSellUsdRate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textStyle="bold"
+            android:text="Not available yet"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/hr"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#9500FF"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="314dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.35"/>
+
+
+
+    <TextView
+        android:id="@+id/calcTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:textStyle="bold"
+        android:text="Calculator"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/hr"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/amountInput"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_margin="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Amount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/calcTitle">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="number"
+            android:singleLine="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/fromTO"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/amountInput"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <TextView
+            android:id="@+id/fromLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="20dp"
+            android:text="From USD"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+
+        <ImageButton
+            android:id="@+id/button_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:backgroundTint="@color/teal_700"
+            android:contentDescription="Toggle"
+            android:minHeight="48dp"
+            android:src="@drawable/ic_baseline_compare_arrows_24" />
+
+        <TextView
+            android:id="@+id/toLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="20dp"
+            android:textStyle="bold"
+            android:text="To LBP"
+            android:textSize="18sp"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/resultsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fromTO"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintVertical_bias="0.1">
+
+        <Button
+            android:id="@+id/button_calculate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:text="Calculate"
+            android:drawableLeft="@drawable/ic_baseline_chevron_right_24"
+            android:backgroundTint="@color/teal_700"
+            android:contentDescription="Toggle"/>
+
+
+        <TextView
+            android:id="@+id/buyResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"
+            android:text="Buy:"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/sellResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Sell:"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="Add Transaction"
+        android:src="@drawable/ic_baseline_add_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

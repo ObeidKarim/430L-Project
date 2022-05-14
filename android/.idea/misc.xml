@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/CurrencyExchange/app/src/main/res/layout/activity_main.xml" value="0.16" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/CurrencyExchange/app/src/main/res/layout/dialog_transaction.xml" value="0.67" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.184" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/drawable/ic_baseline_compare_arrows_24.xml" value="0.184" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/drawable/ic_launcher_background.xml" value="0.184" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/activity_login.xml" value="0.18072916666666666" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/activity_registration.xml" value="0.25" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/dialog_accept_listing.xml" value="0.18072916666666666" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/dialog_listing.xml" value="0.17708333333333334" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/dialog_transaction.xml" value="0.18" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/fragment_exchange.xml" value="0.17" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/fragment_statistics.xml" value="0.25" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/fragment_transactions.xml" value="0.18" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/fragment_user_transactions.xml" value="0.2" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/item_listing.xml" value="0.25" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/item_transaction.xml" value="0.33" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/layout/user_dropdown_item.xml" value="0.25" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/menu/menu_logged_in.xml" value="0.2" />
+        <entry key="..\:/Users/Lenovo/Desktop/EECE 430L/exchange-android-ObeidKarim/app/src/main/res/menu/menu_logged_out.xml" value="0.18802083333333333" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

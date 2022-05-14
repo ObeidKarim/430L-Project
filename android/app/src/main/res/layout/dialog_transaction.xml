@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/txtInptUsdAmount"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="USD Amount"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="number"
+            android:singleLine="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/txtInptLbpAmount"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="LBP Amount"
+        app:layout_constraintTop_toBottomOf="@+id/txtInptUsdAmount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="number"
+            android:singleLine="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <RadioGroup
+        android:id="@+id/rdGrpTransactionType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtInptLbpAmount">
+        <RadioButton
+            android:id="@+id/rdBtnBuyUsd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Buy USD" />
+        <RadioButton
+            android:id="@+id/rdBtnSellUsd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sell USD" />
+    </RadioGroup>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dropdownLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Username"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rdGrpTransactionType">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/usersDropdown"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
+<!--    <Spinner-->
+<!--        android:id="@+id/users_spinner"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="1dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_marginEnd="1dp"-->
+<!--        android:minHeight="48dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/rdGrpTransactionType">-->
+<!--        -->
+<!--    </Spinner>-->
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
