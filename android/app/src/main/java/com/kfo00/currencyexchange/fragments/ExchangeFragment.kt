@@ -11,8 +11,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
-import com.highsoft.highcharts.common.hichartsclasses.*
-import com.highsoft.highcharts.core.HIChartView
 import com.kfo00.currencyexchange.R
 import com.kfo00.currencyexchange.api.Authentication
 import com.kfo00.currencyexchange.api.ExchangeService
@@ -127,10 +125,16 @@ class ExchangeFragment : Fragment() {
             .enqueue(object : Callback<Any> {
                 override fun onResponse(call: Call<Any>, response:
                 Response<Any>) {
-                    Snackbar.make(fab as View, "Transaction added!",
-                        Snackbar.LENGTH_LONG)
-                        .show()
-                fetchRates()
+                    if (response.isSuccessful()){
+                        Snackbar.make(fab as View, "Transaction added!",
+                            Snackbar.LENGTH_LONG)
+                            .show()
+                        fetchRates()}
+                    else{
+                        Snackbar.make(fab as View, "Could not add transaction.",
+                            Snackbar.LENGTH_LONG)
+                            .show()
+                    }
                 }
                 override fun onFailure(call: Call<Any>, t: Throwable) {
                     Snackbar.make(fab as View, "Could not add transaction.",
@@ -147,10 +151,16 @@ class ExchangeFragment : Fragment() {
                 .enqueue(object : Callback<Any> {
                     override fun onResponse(call: Call<Any>, response:
                     Response<Any>) {
+                        if (response.isSuccessful()){
                         Snackbar.make(fab as View, "Transaction added!",
                             Snackbar.LENGTH_LONG)
                             .show()
-                fetchRates()
+                        fetchRates()}
+                        else{
+                            Snackbar.make(fab as View, "Could not add transaction.",
+                                Snackbar.LENGTH_LONG)
+                                .show()
+                        }
                     }
                     override fun onFailure(call: Call<Any>, t: Throwable) {
                         Snackbar.make(fab as View, "Could not add transaction.",
@@ -205,7 +215,7 @@ class ExchangeFragment : Fragment() {
                 trans.usdAmount = usdAmount
                 trans.usdToLbp = usd_to_lbp
 
-                if ((Authentication.getToken() != null) && (usersLayout?.editText?.text != null )){
+                if ((Authentication.getToken() != null) && (usersLayout?.editText?.text.toString().isNotBlank() )){
                     addUserTransaction(trans, usersLayout?.editText?.text.toString())}
                 else addTransaction(trans)
 

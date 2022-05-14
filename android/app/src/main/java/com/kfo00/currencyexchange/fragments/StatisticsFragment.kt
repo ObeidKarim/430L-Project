@@ -66,6 +66,12 @@ class StatisticsFragment : Fragment() {
         getStats()
     }
 
+    override fun onResume() {
+        super.onResume()
+        drawGraph()
+        getStats()
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

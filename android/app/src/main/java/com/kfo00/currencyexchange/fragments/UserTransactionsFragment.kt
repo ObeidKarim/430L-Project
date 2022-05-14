@@ -47,8 +47,7 @@ class UserTransactionsFragment : Fragment() {
             view.findViewById<TextView>(R.id.usdAmount).text =
                 dataSource[position].usd_amount.toString()
             view.findViewById<TextView>(R.id.rate).text = dataSource[position].rate.toString()
-            view.findViewById<TextView>(R.id.usdToLbp).text =
-                dataSource[position].usd_to_lbp.toString()
+            view.findViewById<TextView>(R.id.usdToLbp).text = if (dataSource[position].usd_to_lbp!!) "Sell" else "Buy"
             view.findViewById<TextView>(R.id.userId).text = dataSource[position].user_name
 
 
@@ -178,12 +177,20 @@ class UserTransactionsFragment : Fragment() {
                         call: Call<Any>, response:
                         Response<Any>
                     ) {
-                        Snackbar.make(
-                            fab as View, "Listing added!",
-                            Snackbar.LENGTH_LONG
-                        )
-                            .show()
-                        fetchListings()
+                        if (response.isSuccessful()){
+                            Snackbar.make(
+                                fab as View, "Listing added!",
+                                Snackbar.LENGTH_LONG
+                            )
+                                .show()
+                            fetchListings()}
+                        else {
+                            Snackbar.make(
+                                fab as View, "Could not add listing.",
+                                Snackbar.LENGTH_LONG
+                            )
+                                .show()
+                        }
 
                     }
 
@@ -231,18 +238,27 @@ class UserTransactionsFragment : Fragment() {
                 .enqueue(object : Callback<Any> {
                     override fun onResponse(call: Call<Any>, response: Response<Any>
                     ) {
+                        if (response.isSuccessful()){
                         Snackbar.make(
-                            fab as View, "Listing accepted!",
+                            acceptButton as View, "Listing accepted!",
                             Snackbar.LENGTH_LONG
                         )
                             .show()
-                        fetchListings()
+                        fetchListings()}
+                        else{
+                            Snackbar.make(
+                                acceptButton as View, "Could not accept listing.",
+                                Snackbar.LENGTH_LONG
+                            )
+                                .show()
+
+                        }
 
                     }
 
                     override fun onFailure(call: Call<Any>, t: Throwable) {
                         Snackbar.make(
-                            fab as View, "Could not add listing.",
+                            acceptButton as View, "Could not accept listing.",
                             Snackbar.LENGTH_LONG
                         )
                             .show()

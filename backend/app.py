@@ -324,8 +324,9 @@ def getPoints():
           description: return list of coordinates.
 
   """
+  n = 15
   END_DATE = datetime.datetime.now()
-  START_DATE = END_DATE - datetime.timedelta(days = 30)
+  START_DATE = END_DATE - datetime.timedelta(days = n)
 
   buyTransactions = Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),
                           Transaction.usd_to_lbp == False ).all()
@@ -338,11 +339,11 @@ def getPoints():
     dates[transaction.added_date.strftime("%d %b %Y")][1] += (transaction.lbp_amount/transaction.usd_amount)
 
   points = []
-  date = (datetime.datetime.now() - datetime.timedelta(days = 29)).strftime("%d %b %Y")
+  date = (datetime.datetime.now() - datetime.timedelta(days = n-1)).strftime("%d %b %Y")
   if date not in dates:
     points.append({'x' : date, 'y' : -1})
 
-  for i in range(29-1,-1,-1):
+  for i in range(n-2,-1,-1):
     date = (datetime.datetime.now() - datetime.timedelta(days = i)).strftime("%d %b %Y")
     if date not in dates:
       points.append({'x' : date, 'y' : points[-1]['y']})
@@ -404,7 +405,10 @@ def add_user_transaction(username):
     usd_to_lbp = request_data['usd_to_lbp']
 
     user1_id = decode_token(token)
-    user2_id = User.query.filter_by(user_name = username).first().id
+    if (User.query.filter_by(user_name = username).first()): 
+      user2_id = User.query.filter_by(user_name = username).first().id
+
+    else: abort(400)
 
     if usd_amount and lbp_amount and usd_to_lbp is not None:
       new_transaction = Transaction(usd_amount = usd_amount, lbp_amount = lbp_amount,usd_to_lbp= usd_to_lbp,user_id=user1_id)
@@ -540,6 +544,8 @@ def acceptListing():
 
     user1_id = decode_token(token) 
     listing = Listing.query.filter_by(listing_id = listing_id ).first()
+
+    if listing is None: abort(400)
 
     usd_amount = listing.usd_amount
     rate = listing.rate
@@ -723,7 +729,7 @@ def get_User_Transactions():
 
       for user_transaction in user_transactions1:
           transaction = Transaction.query.filter_by(id = user_transaction.transaction_id).first()
-          transaction_ids.append(transaction.id)
+          transaction_ids.append(user_transaction.transaction_id)
           current = {
               "user_name" : User.query.filter_by(id = user_transaction.user2_id ).first().user_name,
               "usd_amount" : transaction.usd_amount,
@@ -735,7 +741,7 @@ def get_User_Transactions():
       
       for user_transaction in user_transactions2:
         transaction = Transaction.query.filter_by(id = user_transaction.transaction_id).first()
-        transaction_ids.append(transaction.id)
+        transaction_ids.append(user_transaction.transaction_id)
         current = {
             "user_name" : User.query.filter_by(id = user_transaction.user1_id ).first().user_name,
             "usd_amount" : transaction.usd_amount,
@@ -745,8 +751,10 @@ def get_User_Transactions():
         }
         allUserTransactions.append(current)
 
-      users_anon_transactions = Transaction.query.filter(Transaction.id not in transaction_ids).all()
+      print(transaction_ids)
+      users_anon_transactions = Transaction.query.filter(Transaction.user_id == user1_id).filter(~(Transaction.id.in_(transaction_ids))).all()
       for transaction in users_anon_transactions:
+        print(transaction.id)
         current = {
               "user_name" : None,
               "usd_amount" : transaction.usd_amount,
@@ -755,11 +763,13 @@ def get_User_Transactions():
               "added_date" :transaction.added_date.strftime("%d %b %Y ")
           }
         allUserTransactions.append(current)
+      
+      
 
       return jsonify(allUserTransactions)
 
-    except:   
-
+    except Exception as e:   
+      print(e)
       abort(403)
       
 

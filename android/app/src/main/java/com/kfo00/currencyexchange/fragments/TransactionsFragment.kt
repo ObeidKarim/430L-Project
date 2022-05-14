@@ -35,11 +35,10 @@ class TransactionsFragment : Fragment() {
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val view: View = inflater.inflate(R.layout.item_transaction, parent, false)
-            view.findViewById<TextView>(R.id.transID).text = dataSource[position].id.toString()
             view.findViewById<TextView>(R.id.lbpAmount).text = dataSource[position].lbpAmount.toString()
             view.findViewById<TextView>(R.id.usdAmount).text = dataSource[position].usdAmount.toString()
             view.findViewById<TextView>(R.id.transDate).text = dataSource[position].addedDate
-            view.findViewById<TextView>(R.id.usdToLbp).text = dataSource[position].usdToLbp.toString()
+            view.findViewById<TextView>(R.id.usdToLbp).text = if (dataSource[position].usdToLbp!!) "Sell" else "Buy"
             view.findViewById<TextView>(R.id.userId).text = dataSource[position].userName
             return view
         }

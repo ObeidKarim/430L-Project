@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
 object ExchangeService {
-    private const val API_URL: String = "http://192.168.2.227:5000"
+    private const val API_URL: String = "http://192.168.1.28:5000"
     fun exchangeApi():Exchange {
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(API_URL)
@@ -25,7 +25,7 @@ object ExchangeService {
         fun addTransaction(@Body transaction: Transaction,
                            @Header("Authorization") authorization: String?): Call<Any>
 
-        @GET("/transaction")
+        @GET("/userTransactions")
         fun getTransactions(@Header("Authorization") authorization: String): Call<List<Transaction>>
 
         @POST("/user")
