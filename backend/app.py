@@ -719,8 +719,11 @@ def get_User_Transactions():
       user_transactions1 = UserTransaction.query.filter_by(user1_id = user1_id).all()
       user_transactions2 = UserTransaction.query.filter_by(user2_id = user1_id).all()
 
+      transaction_ids = []
+
       for user_transaction in user_transactions1:
           transaction = Transaction.query.filter_by(id = user_transaction.transaction_id).first()
+          transaction_ids.append(transaction.id)
           current = {
               "user_name" : User.query.filter_by(id = user_transaction.user2_id ).first().user_name,
               "usd_amount" : transaction.usd_amount,
@@ -732,6 +735,7 @@ def get_User_Transactions():
       
       for user_transaction in user_transactions2:
         transaction = Transaction.query.filter_by(id = user_transaction.transaction_id).first()
+        transaction_ids.append(transaction.id)
         current = {
             "user_name" : User.query.filter_by(id = user_transaction.user1_id ).first().user_name,
             "usd_amount" : transaction.usd_amount,
@@ -741,6 +745,16 @@ def get_User_Transactions():
         }
         allUserTransactions.append(current)
 
+      users_anon_transactions = Transaction.query.filter(Transaction.id not in transaction_ids).all()
+      for transaction in users_anon_transactions:
+        current = {
+              "user_name" : None,
+              "usd_amount" : transaction.usd_amount,
+              "lbp_amount" : transaction.lbp_amount,
+              "usd_to_lbp" : transaction.usd_to_lbp,
+              "added_date" :transaction.added_date.strftime("%d %b %Y ")
+          }
+        allUserTransactions.append(current)
 
       return jsonify(allUserTransactions)
 
