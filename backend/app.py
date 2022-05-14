@@ -314,6 +314,47 @@ def getCoordinates():
  return jsonify(coordinates_schema.dump(listOfCoordinates))
 
 
+@app.route('/graph2', methods = ['GEt'])
+def getPoints():
+  """
+  Returns a of coordinates of the points to graph by caculating the daily rate over the last 30 days
+ ---
+      responses:
+        200:
+          description: return list of coordinates.
+
+  """
+  END_DATE = datetime.datetime.now()
+  START_DATE = END_DATE - datetime.timedelta(days = 30)
+
+  buyTransactions = Transaction.query.filter(Transaction.added_date.between(START_DATE, END_DATE),
+                          Transaction.usd_to_lbp == False ).all()
+
+  dates = {}
+  for transaction in buyTransactions:
+    if transaction.added_date.strftime("%d %b %Y") not in dates:
+      dates[transaction.added_date.strftime("%d %b %Y")] = [0,0.0]
+    dates[transaction.added_date.strftime("%d %b %Y")][0] +=  1
+    dates[transaction.added_date.strftime("%d %b %Y")][1] += (transaction.lbp_amount/transaction.usd_amount)
+
+  points = []
+  date = (datetime.datetime.now() - datetime.timedelta(days = 29)).strftime("%d %b %Y")
+  if date not in dates:
+    points.append({'x' : date, 'y' : -1})
+
+  for i in range(29-1,-1,-1):
+    date = (datetime.datetime.now() - datetime.timedelta(days = i)).strftime("%d %b %Y")
+    if date not in dates:
+      points.append({'x' : date, 'y' : points[-1]['y']})
+    
+    else :
+      points.append({'x' : date, 'y' : dates[date][1]/dates[date][0]})
+
+  return jsonify(points)
+
+
+
+
 @app.route('/userTransaction/<username>',methods = ['POST'])
 def add_user_transaction(username):
   """ Registers a new transaction of the logged in user and associates it with another user.
@@ -387,14 +428,25 @@ def add_user_transaction(username):
 
 @app.route('/listings',methods= ['GET'])
 def get_listings():
-  """Returns a list of all listings available.
+  """Returns a list of all listings available. (username instead of user id)
     ---
         responses:
           200:
             description: return a list of listings.
   """
   list_of_listings = Listing.query.filter().all()
-  return jsonify(listings_schema.dump(list_of_listings))
+  list_result = []
+  for l in list_of_listings:
+    entry ={
+      "listing_id" : l.listing_id,
+      "user_id" : User.query.filter_by(id = l.user_id ).first().user_name,
+      "usd_amount" : l.usd_amount,
+      "rate": l.rate,
+      "usd_to_lbp": l.usd_to_lbp
+    }
+    list_result.append(entry)
+
+  return jsonify(list_result)
 
   
 @app.route('/listing',methods = ['POST'])
@@ -493,6 +545,9 @@ def acceptListing():
     rate = listing.rate
     usd_to_lbp = listing.usd_to_lbp
     user2_id = listing.user_id
+
+    if user2_id == user1_id:
+      abort(400)
     
     new_transaction = Transaction(usd_amount = usd_amount, lbp_amount = usd_amount*rate, usd_to_lbp= usd_to_lbp,user_id=user1_id)
     db.session.add(new_transaction)
@@ -509,7 +564,6 @@ def acceptListing():
     db.session.commit()
 
    
-
     return jsonify(transaction_schema.dump(new_transaction))
 
   except (TypeError,KeyError):
@@ -590,12 +644,12 @@ def get_stats():
   stats["volume"] = volume
   stats["numberOfTransactions"] = numberOfTransactions
 
-  if (len(buy_rates) > 0):
-    stats["max_usd_to_lbp"] = max(buy_rates)
-    stats["median_usd_to_lbp"] = statistics.median(buy_rates)
-    stats["stdev_usd_to_lbp"] = statistics.stdev(buy_rates)
-    stats["mode_usd_to_lbp"] = statistics.mode(buy_rates)
-    stats["variance_usd_to_lbp"] = statistics.variance(buy_rates)
+  if (len(sell_rates) > 0):
+    stats["max_usd_to_lbp"] = max(sell_rates)
+    stats["median_usd_to_lbp"] = statistics.median(sell_rates)
+    stats["stdev_usd_to_lbp"] = statistics.stdev(sell_rates)
+    stats["mode_usd_to_lbp"] = statistics.mode(sell_rates)
+    stats["variance_usd_to_lbp"] = statistics.variance(sell_rates)
 
   else:
     stats["max_usd_to_lbp"] = -1
@@ -604,12 +658,12 @@ def get_stats():
     stats["mode_usd_to_lbp"] = -1
     stats["variance_usd_to_lbp"] = -1
 
-  if (len(sell_rates) > 0):
-    stats["max_lbp_to_usd"] = max(sell_rates)
-    stats["median_lbp_to_usd"] = statistics.median(sell_rates)
-    stats["stdev_lbp_to_usd"] = statistics.stdev(sell_rates)
-    stats["mode_lbp_to_usd"] = statistics.mode(sell_rates)
-    stats["variance_lbp_to_usd"] = statistics.variance(sell_rates)
+  if (len(buy_rates) > 0):
+    stats["max_lbp_to_usd"] = max(buy_rates)
+    stats["median_lbp_to_usd"] = statistics.median(buy_rates)
+    stats["stdev_lbp_to_usd"] = statistics.stdev(buy_rates)
+    stats["mode_lbp_to_usd"] = statistics.mode(buy_rates)
+    stats["variance_lbp_to_usd"] = statistics.variance(buy_rates)
 
   else:
     stats["max_lbp_to_usd"] = -1
@@ -640,6 +694,60 @@ def allTransactions():
     return jsonify(transactions_schema.dump(L))
 
 
+
+@app.route('/userTransactions', methods = ['GET'])
+def get_User_Transactions():
+    """ Returns all User-Transactions registered by the signed in user.
+    ---
+    responses:
+      200:
+        description: A json of all User-Transactions registered by the signed in user.
+      400:
+        description : The token passed is invalid.
+    """
+    token = extract_auth_token(request)
+    if token is None:
+      abort(403)
+
+    try:   
+      user1_id = decode_token(token)
+
+
+      #If he was the buyer or the seller
+      allUserTransactions = []
+
+      user_transactions1 = UserTransaction.query.filter_by(user1_id = user1_id).all()
+      user_transactions2 = UserTransaction.query.filter_by(user2_id = user1_id).all()
+
+      for user_transaction in user_transactions1:
+          transaction = Transaction.query.filter_by(id = user_transaction.transaction_id).first()
+          current = {
+              "user_name" : User.query.filter_by(id = user_transaction.user2_id ).first().user_name,
+              "usd_amount" : transaction.usd_amount,
+              "lbp_amount" : transaction.lbp_amount,
+              "usd_to_lbp" : transaction.usd_to_lbp,
+              "added_date" :transaction.added_date.strftime("%d %b %Y ")
+          }
+          allUserTransactions.append(current)
+      
+      for user_transaction in user_transactions2:
+        transaction = Transaction.query.filter_by(id = user_transaction.transaction_id).first()
+        current = {
+            "user_name" : User.query.filter_by(id = user_transaction.user1_id ).first().user_name,
+            "usd_amount" : transaction.usd_amount,
+            "lbp_amount" : transaction.lbp_amount,
+            "usd_to_lbp" : transaction.usd_to_lbp,
+            "added_date" :transaction.added_date.strftime("%d %b %Y ")
+        }
+        allUserTransactions.append(current)
+
+
+      return jsonify(allUserTransactions)
+
+    except:   
+
+      abort(403)
+      
 
 
 
